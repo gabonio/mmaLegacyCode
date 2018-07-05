@@ -1,212 +1,350 @@
 package mma.legacy.interval;
 
+import org.apache.log4j.Logger;
+
 /**
  * Clase para el ejemplo de trabajo con Legacy
  * 
  * @author Agustin Controla operaciones sobre intervalos que pudeen ser abiertos
  *         o cerrados
  */
-public class Interval {
+public class Interval 
+{	
+	private Logger logger;
 
-	private double minimum; // número entero que indica el limite superior del intervalo
-	private double maximum; // número entero que indica el limite superior del intervalo
-	private Opening opening; // Valor booleano que indica si el intervalo es abierto o cerrado
+	private double minimum; // indica el limite superior del intervalo
+	private double maximum; // indica el limite superior del intervalo
+	private Opening opening; // indica si el tipo de intervalo (abierto o cerrado)
 
 	/**
-	 * Constructor de la clase
-	 * 
-	 * @param minimum
-	 * @param maximum
-	 * @param opening
-	 *            Todos los parámetros pueden ser nulos
+	 * getter publico para la propiedad minimum
+	 * @return
 	 */
-	public Interval(double minimum, double maximum, Opening opening) 
-	{
-		this.minimum = minimum;
-		this.maximum = maximum;
-		this.opening = opening;
-		System.out.println("Objeto creado");
+	public double getMinimum() {
+		return minimum;
 	}
 
 	/**
-	 * Este método calcula la división entre 2 de la suma de los límites del
-	 * intervalo
+	 * setter publico para la propiedad minimum
+	 * @param minimum
+	 */
+	public void setMinimum(double minimum) {
+		this.minimum = minimum;
+	}
+	
+	/**
+	 * getter publico para la propiedad maximum
+	 * @return
+	 */
+	public double getMaximum() {
+		return maximum;
+	}
+
+	/**
+	 * setter publico para la propiedad maximum
+	 * @param maximum
+	 */
+	public void setMaximum(double maximum) {
+		this.maximum = maximum;
+	}
+	
+	/**
+	 * getter publico para la propiedad opening
+	 * @return
+	 */
+	public Opening getOpening() {
+		return opening;
+	}
+
+	/**
+	 * setter publico para la propiedad opening
+	 * @param opening
+	 */
+	public void setOpening(Opening opening) {
+		this.opening = opening;
+	}
+
+	/**
+	 * Constructor privado que inicializa el logger
+	 */
+	private Interval()
+	{
+		logger = Logger.getLogger(this.getClass().getName());
+	}
+	
+	/**
+	 * Constructor de la clase
+	 * 
+	 * @param minimum : indica el limite superior del intervalo
+	 * @param maximum : indica el limite superior del intervalo
+	 * @param opening
+	 */
+	public Interval(double minimum, double maximum, Opening opening) 
+	{
+		this();
+		
+		this.setMinimum(minimum);
+		this.setMaximum(maximum);
+		this.setOpening(opening);
+		
+		logger.trace("Objeto 'Interval' creado");
+	}
+
+	/**
+	 * Este método calcula el punto medio de los límites del intervalo
 	 * 
 	 * @return
 	 */
 	public double midPoint() 
 	{
-		return (maximum + minimum) / 2;
+		return (getMaximum() + getMinimum()) / 2;
 	}
 
-	/*
-	 * Este método mira si un número está dentro de un determiando intervalo
+	/**
+	 * Este método mira si un número está dentro del intervalo
+	 * @param value
 	 * 
 	 */
 	public boolean includes(double value) 
 	{
-		System.out.print("Entro en el método");
+		logger.trace("Entro en el método 'includes'");
 		
-		switch (opening) 
+		boolean result;
+		
+		switch (getOpening()) 
 		{
 			case BOTH_OPENED:
-				return minimum < value && value < maximum;
+				result = getMinimum() < value && value < getMaximum();
+				break;
+			
 			case LEFT_OPENED:
-				return minimum < value && value <= maximum;
+				result = getMinimum() < value && value <= getMaximum();
+				break;
+			
 			case RIGHT_OPENED:
-				return minimum <= value && value < maximum;
-			case UNOPENED:
-				return minimum <= value && value <= maximum;
+				result = getMinimum() <= value && value < getMaximum();
+				break;
+			
+			case BOTH_CLOSED:
+				result = getMinimum() <= value && value <= getMaximum();
+				break;
+			
 			default:
-				assert false;
-				return false;
+				result = false;
+				break;
 		}
+		
+		return result;
 	}
 
 	/**
-	 * Este método calcula si un número está dentro de un intervalo
+	 * Este método calcula si un intervalo está dentro de otro intervalo
 	 * 
 	 * @param interval
-	 * @return
+	 * @return True si el intervalo recibido por parametro esta inlcuido, en caso contrario False
 	 */
 	public boolean includes(Interval interval) 
-	{
-		boolean minimumIncluded = this.includes(interval.minimum);
-		boolean maximumIncluded = this.includes(interval.maximum);
+	{		
+		boolean result;
 		
-		switch (opening) 
+		switch (getOpening()) 
 		{
-		case BOTH_OPENED:
-			switch (interval.opening) 
-			{
-				case BOTH_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
-				case LEFT_OPENED:
-					return (minimumIncluded || minimum == interval.minimum) && (maximumIncluded);
-				case RIGHT_OPENED:
-					return (minimumIncluded) && (maximumIncluded || maximum == interval.maximum);
-				case UNOPENED:
-					return (minimumIncluded) && (maximumIncluded);
-				default:
-					assert false;
-					return false;
-			}
+			case BOTH_OPENED:
+				switch (interval.getOpening()) 
+				{
+					case BOTH_OPENED:
+						result = areBothLimitsIncludedOrEqual(this,interval);
+						break;
+					
+					case LEFT_OPENED:
+						result = isUpperLimitIncludedAndLowerEqualOrIncluded(this,interval);
+						break;
+					
+					case RIGHT_OPENED:
+						result = isLowerLimitIncludedAndUpperEqualOrIncluded(this,interval);
+						break;
+					
+					case BOTH_CLOSED:
+						result = areBothLimitsIncluded(this,interval);
+						break;
+					
+					default:
+						result = false;
+						break;
+				}
+				break;
 		
 		case LEFT_OPENED:
-			switch (interval.opening) 
+			switch (interval.getOpening()) 
 			{
 				case BOTH_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
 				case LEFT_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
+					result = areBothLimitsIncludedOrEqual(this,interval);
+					break;
+				
 				case RIGHT_OPENED:
-					return (minimumIncluded) && (maximumIncluded || maximum == interval.maximum);
-				case UNOPENED:
-					return (minimumIncluded) && (maximumIncluded || maximum == interval.maximum);
+				case BOTH_CLOSED:
+					result = isLowerLimitIncludedAndUpperEqualOrIncluded(this,interval);
+					break;
+				
 				default:
-					assert false;
-					return false;
+					result = false;
+					break;
 			}
+			break;
 		
 		case RIGHT_OPENED:
-			switch (interval.opening) 
+			switch (interval.getOpening()) 
 			{
 				case BOTH_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
-				case LEFT_OPENED:
-					return (minimumIncluded || minimum == interval.minimum) && (maximumIncluded);
 				case RIGHT_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
-				case UNOPENED:
-					return (minimumIncluded || minimum == interval.minimum) && (maximumIncluded);
+					result = areBothLimitsIncludedOrEqual(this,interval);
+					break;
+					
+				case LEFT_OPENED:
+				case BOTH_CLOSED:
+					result = isUpperLimitIncludedAndLowerEqualOrIncluded(this,interval);
+					break;
+				
 				default:
-					assert false;
-					return false;
+					result = false;
+					break;
 			}
+			break;
 			
-		case UNOPENED:
-			switch (interval.opening) 
+		case BOTH_CLOSED:
+			switch (interval.getOpening()) 
 			{
 				case BOTH_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
 				case LEFT_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
 				case RIGHT_OPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
-				case UNOPENED:
-					return (minimumIncluded || minimum == interval.minimum)
-							&& (maximumIncluded || maximum == interval.maximum);
+				case BOTH_CLOSED:
+					result = areBothLimitsIncludedOrEqual(this,interval);
+					break;
+				
 				default:
-					assert false;
-					return false;
+					result = false;
+					break;
 			}
+			break;
+			
 		default:
-			assert false;
-			return false;
+			result = false;
+			break;
 		}
+		
+		return result;
 	}
 
 	/**
-	 * Este método calcula el ancho de un intervalo
+	 * Este metodo evalua si en dos intervalos, sus limites inferiores y superiores son
+	 * iguales o uno incluye al otro
+	 * 
+	 * @param interval : primer intervalo a comparar
+	 * @param interval2 : segundo intervalo a comparar
+	 * 
+	 * @return true si el primer interbalo incluye al segundo o si sus limites son iguales, en caso contrario, retorna false
+	 */
+	private boolean areBothLimitsIncludedOrEqual(Interval interval, Interval interval2) 
+	{
+		boolean isMinimumIncluded = interval.includes(interval2.getMinimum());
+		boolean isMaximumIncluded = interval.includes(interval2.getMaximum());
+		
+		return (isMinimumIncluded || getMinimum() == interval.getMinimum()) && (isMaximumIncluded || getMaximum() == interval.getMaximum());
+	}
+	
+	/**
+	 * Este metodo evalua si en dos intervalos, el primero incluye a los limites superior e inferior del segundo
+	 * 
+	 * @param interval : primer intervalo a comparar
+	 * @param interval2 : segundo intervalo a comparar
+	 * 
+	 * @return true si el primer interbalo incluye a los limites superior e inferior del segundo, en caso contrario, retorna false
+	 */
+	private boolean areBothLimitsIncluded(Interval interval, Interval interval2) 
+	{
+		boolean isMinimumIncluded = interval.includes(interval2.getMinimum());
+		boolean isMaximumIncluded = interval.includes(interval2.getMaximum());
+		
+		return (isMinimumIncluded) && (isMaximumIncluded);
+	}
+	
+	/**
+	 * Este metodo evalua si en dos intervalos, el primero incluye al limite inferior del segundo
+	 * y si incluye o su limite superior es igual al del segundo
+	 * 
+	 * @param interval : primer intervalo a comparar
+	 * @param interval2 : segundo intervalo a comparar
+	 * 
+	 * @return true primero incluye al limite inferior del segundo y si incluye o su limite superior es igual al del segundo, en caso contrario, retorna false
+	 */
+	private boolean isLowerLimitIncludedAndUpperEqualOrIncluded(Interval interval, Interval interval2) 
+	{
+		boolean isMinimumIncluded = interval.includes(interval2.getMinimum());
+		boolean isMaximumIncluded = interval.includes(interval2.getMaximum());
+		
+	    return (isMinimumIncluded) && (isMaximumIncluded || getMaximum() == interval.getMaximum());
+	}
+	
+	/**
+	 * Este metodo evalua si en dos intervalos, el primero incluye al limite superior del segundo
+	 * y si incluye o su limite inferior es igual al del segundo
+	 * 
+	 * @param interval : primer intervalo a comparar
+	 * @param interval2 : segundo intervalo a comparar
+	 * 
+	 * @return true primero incluye al limite superior del segundo y si incluye o su limite inferior es igual al del segundo, en caso contrario, retorna false
+	 */
+	private boolean isUpperLimitIncludedAndLowerEqualOrIncluded(Interval interval, Interval interval2) 
+	{
+		boolean isMinimumIncluded = interval.includes(interval2.getMinimum());
+		boolean isMaximumIncluded = interval.includes(interval2.getMaximum());
+		
+	    return (isMaximumIncluded) && (isMinimumIncluded || getMinimum() == interval.getMinimum());
+	}
+
+	/**
+	 * Este método determina si un intervalo se intersecta con otro
 	 * 
 	 * @param interval
 	 * @return
 	 */
-
 	public boolean intersectsWith(Interval interval) 
 	{
-		if (minimum == interval.maximum) 
+		if (getMinimum() == interval.getMaximum()) 
 		{
-			switch (opening) 
+			switch (getOpening()) 
 			{
 				case BOTH_OPENED:
 				case LEFT_OPENED:
 					return false;
+					
 				case RIGHT_OPENED:
-				case UNOPENED:
-					return interval.opening == Opening.LEFT_OPENED || interval.opening == Opening.UNOPENED;
+				case BOTH_CLOSED:
+					return interval.getOpening() == Opening.LEFT_OPENED || interval.getOpening() == Opening.BOTH_CLOSED;
+				
 				default:
-					assert false;
 					return false;
 			}
 		}
 		
-		if (maximum == interval.minimum) 
+		if (getMaximum() == interval.getMinimum()) 
 		{
-			switch (opening) 
+			switch (getOpening()) 
 			{
 				case BOTH_OPENED:
 				case RIGHT_OPENED:
 					return false;
+					
 				case LEFT_OPENED:
-				case UNOPENED:
-					return interval.opening == Opening.RIGHT_OPENED || interval.opening == Opening.UNOPENED;
+				case BOTH_CLOSED:
+					return interval.getOpening() == Opening.RIGHT_OPENED || interval.getOpening() == Opening.BOTH_CLOSED;
+				
 				default:
-					assert false;
 					return false;
 			}
 		}
-		return this.includes(interval.minimum) || this.includes(interval.maximum);
+		
+		return this.includes(interval.getMinimum()) || this.includes(interval.getMaximum());
 	}
-
-	@Override
-	public String toString() {
-		// TODO
-		return null;
-	}
-
-	@Override
-	public boolean equals(Object object) {
-		// TODO
-		return false;
-	}
-
 }

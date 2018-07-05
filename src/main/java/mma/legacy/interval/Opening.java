@@ -6,11 +6,10 @@ package mma.legacy.interval;
  *
  */
 
-public enum Opening {
-	
+public enum Opening 
+{	
 	LEFT_OPENED, 
 	RIGHT_OPENED, 
 	BOTH_OPENED, 
-	UNOPENED;
-
+	BOTH_CLOSED;
 }

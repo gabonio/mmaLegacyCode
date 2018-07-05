@@ -7,9 +7,18 @@ package mma.legacy.interval;
  * @author Agustin
  *
  */
-public class IntervalFactory {
+public class IntervalFactory 
+{
+	/**
+	 * Private class constructor
+	 */
+	private IntervalFactory()
+	{
+		
+	}
 
-	public static Interval getInterval(double minimum, double maximum, Opening opening) {
+	public static Interval getInterval(double minimum, double maximum, Opening opening) 
+	{
 		return new Interval(minimum, maximum, opening);
 	}
 }

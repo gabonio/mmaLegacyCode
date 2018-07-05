@@ -1,0 +1,7 @@
+organization=gabonio-github
+projectKey=mma.legacy:interval:master
+serverUrl=https://sonarcloud.io
+serverVersion=7.3.0.14089
+dashboardUrl=https://sonarcloud.io/dashboard?id=mma.legacy%3Ainterval%3Amaster
+ceTaskId=AWRrfSaMSVw5l4-qjFLv
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWRrfSaMSVw5l4-qjFLv
