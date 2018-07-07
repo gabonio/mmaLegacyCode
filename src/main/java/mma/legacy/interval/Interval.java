@@ -5,8 +5,9 @@ import org.apache.log4j.Logger;
 /**
  * Clase para el ejemplo de trabajo con Legacy
  * 
- * @author Agustin Controla operaciones sobre intervalos que pudeen ser abiertos
- *         o cerrados
+ * @author Agustin 
+ * 
+ * Controla operaciones sobre intervalos que pudeen ser abiertos o cerrados
  */
 public class Interval 
 {	
