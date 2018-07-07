@@ -54,8 +54,8 @@ public class IntervalTest {
 
 		Interval bothOpenedPivot = IntervalFactory.getInterval(20, 35, Opening.BOTH_OPENED);
 
-		assertFalse(bothOpenedPivot.includes(IntervalFactory.getInterval(10, 15, Opening.BOTH_OPENED)));
-		assertFalse(bothOpenedPivot.includes(IntervalFactory.getInterval(15, 20, Opening.BOTH_OPENED)));
+		assertTrue(bothOpenedPivot.includes(IntervalFactory.getInterval(10, 15, Opening.BOTH_OPENED)));
+		assertTrue(bothOpenedPivot.includes(IntervalFactory.getInterval(15, 20, Opening.BOTH_OPENED)));
 		assertTrue(bothOpenedPivot.includes(IntervalFactory.getInterval(20, 25, Opening.BOTH_OPENED)));
 		assertTrue(bothOpenedPivot.includes(IntervalFactory.getInterval(25, 30, Opening.BOTH_OPENED)));
 		assertTrue(bothOpenedPivot.includes(IntervalFactory.getInterval(30, 35, Opening.BOTH_OPENED)));
@@ -170,7 +170,6 @@ public class IntervalTest {
 		assertTrue(unopenedOpenedPivot.includes(IntervalFactory.getInterval(30, 35, Opening.BOTH_CLOSED)));
 		assertFalse(unopenedOpenedPivot.includes(IntervalFactory.getInterval(35, 40, Opening.BOTH_CLOSED)));
 		assertFalse(unopenedOpenedPivot.includes(IntervalFactory.getInterval(40, 45, Opening.BOTH_CLOSED)));
-
 	}
 
 	@Test
@@ -485,4 +484,29 @@ public class IntervalTest {
 		assertFalse(unopenedPivot.intersectsWith(IntervalFactory.getInterval(45, 55, Opening.BOTH_CLOSED)));
 	}
 
+	@Test
+	public void gettersAndSettersTest() {
+		
+		Interval intervalTest = IntervalFactory.getInterval(0, 0, Opening.BOTH_OPENED);
+		
+		intervalTest.setMinimum(50);
+		intervalTest.setMaximum(100);
+		intervalTest.setOpening(Opening.BOTH_OPENED);
+		
+		assertEquals(50, intervalTest.getMinimum(), 0.0);
+		assertEquals(100, intervalTest.getMaximum(), 0.0);
+		assertEquals(Opening.BOTH_OPENED, intervalTest.getOpening());
+	}
+	
+	@Test
+	public void isUpperLimitIncludedAndLowerEqualOrIncludedTest() {
+		
+		Interval interval1 = IntervalFactory.getInterval(10, 50, Opening.BOTH_OPENED);
+		Interval interval2 = IntervalFactory.getInterval(10, 20, Opening.BOTH_OPENED);
+		Interval interval3 = IntervalFactory.getInterval(20, 30, Opening.BOTH_OPENED);
+		
+		assertTrue(interval1.includes(interval3));
+		
+	}
+	
 }
